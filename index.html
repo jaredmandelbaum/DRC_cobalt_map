@@ -54,30 +54,42 @@
         top: 0;
         height: 100vh;
         overflow: hidden;
+        background: #050505;
       }
 
       .map-canvas {
         position: absolute;
         inset: 0;
-        z-index: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        z-index: 1;
       }
 
       .map-overlay {
         position: absolute;
         inset: 0;
-        z-index: 2;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 8vh 7vw;
         pointer-events: none;
       }
 
       .map-copy {
         position: absolute;
+        left: 50%;
+        top: 50%;
         margin: 0;
+        max-width: min(920px, 86vw);
+        font-size: clamp(1.08rem, 2.1vw, 1.92rem);
+        line-height: 1.45;
+        text-align: center;
+        color: rgba(242, 238, 233, 0.94);
+        text-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
         opacity: 0;
-        font-size: clamp(1.25rem, 2.2vw, 2rem);
-        line-height: 1.42;
-        color: rgba(245, 242, 236, 0.98);
-        text-shadow: 0 10px 24px rgba(0, 0, 0, 0.8);
-        transition: opacity 180ms linear;
+        transform: translate(-50%, calc(-50% + var(--map-copy-offset, 0px)));
+        text-wrap: pretty;
       }
 
       .map-copy-panel {
@@ -92,14 +104,6 @@
         left: 18%;
         top: 66%;
         max-width: min(500px, 30vw);
-        text-align: center;
-      }
-
-      .map-copy-main {
-        left: 50%;
-        top: 64%;
-        transform: translate(-50%, -50%);
-        max-width: min(860px, 78vw);
         text-align: center;
       }
 
@@ -145,14 +149,12 @@
           text-align: center;
         }
 
-        .map-copy-main,
         .map-copy-left-facility,
         .map-copy-right-low {
           left: 50%;
           top: 66%;
           max-width: 90vw;
           text-align: center;
-          transform: translate(-50%, -50%);
         }
       }
     </style>
@@ -167,7 +169,7 @@
             Chinese company called CMOC Group Ltd (CMOC; formerly China
             Molybdenum Co., Ltd.) through its mining operations in DRC.
           </p>
-          <p class="map-copy map-copy-main map-copy-panel" id="mapCopyTwo">
+          <p class="map-copy map-copy-panel" id="mapCopyTwo">
             This is where the group controls two of the world’s largest
             copper-cobalt mines: the Tenke Fungurume mine and the
             <span style="white-space: nowrap">Kisanfu mine.</span>
@@ -222,6 +224,8 @@
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 18,
+          updateWhenZooming: false,
+          updateWhenIdle: true,
         }
       ).addTo(map);
 
@@ -229,6 +233,8 @@
         "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 18,
+          updateWhenZooming: false,
+          updateWhenIdle: true,
         }
       ).addTo(map);
 
