@@ -220,21 +220,26 @@
         zoomSnap: 0.01,
       }).setView([-1.5, 21.5], 5);
 
-      L.tileLayer(
+      map.createPane("labelsPane");
+      map.getPane("labelsPane").style.zIndex = "450";
+      map.getPane("labelsPane").style.pointerEvents = "none";
+
+      const imageryLayer = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 18,
-          updateWhenZooming: false,
-          updateWhenIdle: true,
+          updateWhenZooming: true,
+          updateWhenIdle: false,
         }
       ).addTo(map);
 
-      L.tileLayer(
+      const labelsLayer = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 18,
-          updateWhenZooming: false,
-          updateWhenIdle: true,
+          pane: "labelsPane",
+          updateWhenZooming: true,
+          updateWhenIdle: false,
         }
       ).addTo(map);
 
@@ -431,6 +436,15 @@
       });
 
       map.on("zoom move", updateMineOverviewRevealByZoom);
+      map.on("zoomstart", () => {
+        map.getPane("labelsPane").style.opacity = "0";
+      });
+      map.on("zoomend", () => {
+        map.getPane("labelsPane").style.opacity = "1";
+      });
+      map.on("moveend", () => {
+        map.getPane("labelsPane").style.opacity = "1";
+      });
     </script>
   </body>
 </html>
