@@ -13,7 +13,10 @@
     <style>
       @font-face {
         font-family: "Lato";
-        src: url("assets/fonts/Lato-Regular.ttf") format("truetype");
+        src: local("Lato"),
+          url("https://jaredmandelbaum.github.io/DRC_cobalt_map/assets/fonts/Lato-Regular.ttf")
+            format("truetype"),
+          url("assets/fonts/Lato-Regular.ttf") format("truetype");
         font-weight: 400;
         font-style: normal;
         font-display: swap;
@@ -21,7 +24,10 @@
 
       @font-face {
         font-family: "Lato";
-        src: url("assets/fonts/Lato-Bold.ttf") format("truetype");
+        src: local("Lato Bold"), local("Lato"),
+          url("https://jaredmandelbaum.github.io/DRC_cobalt_map/assets/fonts/Lato-Bold.ttf")
+            format("truetype"),
+          url("assets/fonts/Lato-Bold.ttf") format("truetype");
         font-weight: 700;
         font-style: normal;
         font-display: swap;
@@ -157,10 +163,54 @@
           text-align: center;
         }
       }
+
+      /* Shorthand-safe overrides to prevent host styles from flattening map text */
+      #drc-cobalt-map-root,
+      #drc-cobalt-map-root * {
+        box-sizing: border-box;
+      }
+
+      #drc-cobalt-map-root .map-copy,
+      #drc-cobalt-map-root .map-attribution {
+        font-family: "Lato", "Helvetica Neue", Arial, sans-serif !important;
+      }
+
+      #drc-cobalt-map-root .map-copy {
+        margin: 0 !important;
+        font-size: clamp(1.08rem, 2.1vw, 1.92rem) !important;
+        line-height: 1.45 !important;
+        letter-spacing: 0 !important;
+        font-weight: 400 !important;
+      }
+
+      #drc-cobalt-map-root .map-copy-strong {
+        font-size: clamp(1.25rem, 2.5vw, 2.18rem) !important;
+        font-weight: 700 !important;
+        line-height: 1.35 !important;
+      }
+
+      #drc-cobalt-map-root .map-copy-left {
+        left: 18% !important;
+        top: 66% !important;
+        max-width: min(500px, 30vw) !important;
+      }
+
+      #drc-cobalt-map-root .map-copy-left-facility {
+        left: 24% !important;
+        top: 63% !important;
+        max-width: min(600px, 34vw) !important;
+      }
+
+      #drc-cobalt-map-root .map-copy-right-low {
+        left: 64% !important;
+        top: 74% !important;
+        max-width: min(980px, 56vw) !important;
+      }
     </style>
   </head>
   <body>
-    <section class="map-scroll" id="mapScroll">
+    <div id="drc-cobalt-map-root">
+      <section class="map-scroll" id="mapScroll">
       <div class="map-sticky">
         <div id="mapCanvas" class="map-canvas" aria-label="Satellite map"></div>
         <div class="map-overlay">
@@ -192,7 +242,8 @@
         </div>
         <div class="map-attribution">Imagery: Esri, Maxar, Earthstar Geographics, and the GIS User Community. Labels: Esri. Data context: OpenStreetMap contributors.</div>
       </div>
-    </section>
+      </section>
+    </div>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
