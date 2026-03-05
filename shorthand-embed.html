@@ -173,11 +173,9 @@
           In order to dominate the world’s cobalt hydroxide production, in 2023 CMOC
           built one of the largest copper-cobalt processing complexes in Africa -
           about the size of 500 soccer fields - right next to Fungurume, a mining
-          town in Lualaba province in southeast DRC.
-        </p>
-        <p class="map-copy map-copy-left-facility map-copy-panel" id="mapCopyFour">
-          This colossal processing facility capable of processing 30,000 tons of
-          copper-cobalt mixed ore every day is known as the “30k plant.”
+          town in Lualaba province in southeast DRC. This colossal processing
+          facility capable of processing 30,000 tons of copper-cobalt mixed ore
+          every day is known as the “30k plant.”
         </p>
         <p class="map-copy map-copy-right-low map-copy-panel map-copy-strong" id="mapCopyFive">
           The problem is that thousands of people live within a few kilometers of
@@ -235,7 +233,6 @@
       var mapCopyOne = document.getElementById("mapCopyOne");
       var mapCopyTwo = document.getElementById("mapCopyTwo");
       var mapCopyThree = document.getElementById("mapCopyThree");
-      var mapCopyFour = document.getElementById("mapCopyFour");
       var mapCopyFive = document.getElementById("mapCopyFive");
       var mapCanvas = document.getElementById("mapCanvas");
       if (!mapCanvas || mapCanvas.dataset.initialized === "1") {
@@ -452,8 +449,7 @@
         }
 
         updateMineOverviewRevealByZoom();
-        setCopyVisible(mapCopyThree, activeStage === 2);
-        setCopyVisible(mapCopyFour, activeStage === 3);
+        setCopyVisible(mapCopyThree, activeStage === 2 || activeStage === 3);
         setCopyVisible(mapCopyFive, activeStage === 4);
       }
 
