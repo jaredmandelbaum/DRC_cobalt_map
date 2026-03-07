@@ -136,6 +136,23 @@
     backdrop-filter: blur(4px);
   }
 
+  #drc-cobalt-maplibre-root .mine-tooltip .maplibregl-popup-content {
+    font-family: "Lato", "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.2;
+    color: #121212;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+    padding: 4px 7px;
+  }
+
+  #drc-cobalt-maplibre-root .mine-tooltip .maplibregl-popup-tip {
+    border-top-color: #ffffff;
+    border-bottom-color: #ffffff;
+  }
+
   @media (max-width: 900px) {
     #drc-cobalt-maplibre-root .map-copy-left {
       left: 50% !important;
@@ -184,7 +201,7 @@
       </div>
       <div class="map-attribution">
         Basemap imagery and place labels: Esri, Maxar, Earthstar Geographics,
-        and the GIS User Community. Overlay map data: EIA analysis.
+        and the GIS User Community.
       </div>
     </div>
   </section>
@@ -276,7 +293,8 @@
       }
       mapCanvas.dataset.initialized = "1";
 
-      var basinView = { lat: -1.5, lng: 21.5, zoom: 5.0 };
+      var basinView = { lat: -1.5, lng: 21.5, zoom: 4.6 };
+      var stageOneTargetZoom = 12.6;
       var westCoastRef = { lat: 0.0, lng: 9.0 };
       var kisanfu = { lat: -10.7870667, lng: 25.9300361 };
       var tenkeFungurume = { lat: -10.6383278, lng: 26.2913167 };
@@ -408,6 +426,7 @@
               "source-layer": PMTILES_LAYER_NAME,
               filter: ["==", ["get", "feature_type"], "mine_point"],
               layout: {
+                "visibility": "none",
                 "text-field": ["get", "name"],
                 "text-font": ["Noto Sans Bold", "Open Sans Bold"],
                 "text-offset": [0, 1.1],
@@ -434,12 +453,47 @@
         maxZoom: 16,
         dragRotate: false,
         touchZoomRotate: false,
+        attributionControl: false,
         interactive: false
       });
 
+      var minePopupsVisible = false;
+      var kisanfuPopup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        closeOnMove: false,
+        offset: [0, -12],
+        className: "mine-tooltip"
+      })
+        .setLngLat([kisanfu.lng, kisanfu.lat])
+        .setText("Kisanfu Mine");
+      var tenkePopup = new maplibregl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        closeOnMove: false,
+        offset: [0, -12],
+        className: "mine-tooltip"
+      })
+        .setLngLat([tenkeFungurume.lng, tenkeFungurume.lat])
+        .setText("Tenke Fungurume mine");
+
+      function setMinePopupsVisible(show) {
+        if (show === minePopupsVisible) {
+          return;
+        }
+        minePopupsVisible = show;
+        if (show) {
+          kisanfuPopup.addTo(map);
+          tenkePopup.addTo(map);
+          return;
+        }
+        kisanfuPopup.remove();
+        tenkePopup.remove();
+      }
+
       function setOverlayVisibility(showPoints, showFocus, showRisk) {
         map.setLayoutProperty("mine-points", "visibility", showPoints ? "visible" : "none");
-        map.setLayoutProperty("mine-labels", "visibility", showPoints ? "visible" : "none");
+        map.setLayoutProperty("mine-labels", "visibility", "none");
         map.setLayoutProperty("focus-area-fill", "visibility", showFocus ? "visible" : "none");
         map.setLayoutProperty("focus-area-outline", "visibility", showFocus ? "visible" : "none");
         map.setLayoutProperty("risk-area-fill", "visibility", showRisk ? "visible" : "none");
@@ -448,12 +502,17 @@
 
       function updateMineOverviewRevealByZoom() {
         if (mapStage !== 1) {
+          setMinePopupsVisible(false);
+          setCopyVisible(mapCopyTwo, false);
+          setOverlayVisibility(false, false, false);
           return;
         }
         var z = map.getZoom();
-        var reveal = clamp((z - 10.1) / 1.0, 0, 1);
-        var revealReady = reveal > 0.2;
+        var reveal = clamp((z - basinView.zoom) / (stageOneTargetZoom - basinView.zoom), 0, 1);
+        var revealReady = reveal >= 0.8;
+        setCopyVisible(mapCopyTwo, revealReady);
         setOverlayVisibility(revealReady, false, false);
+        setMinePopupsVisible(revealReady);
       }
 
       function goToMapStage(nextStage) {
@@ -482,14 +541,15 @@
           setCopyVisible(mapCopyTwo, false);
           map.fitBounds(mineBounds, {
             duration: 6200,
-            maxZoom: 12.6,
+            maxZoom: stageOneTargetZoom,
             padding: { top: 80, bottom: 80, left: 80, right: 80 }
           });
           return;
         }
 
         if (nextStage === 2) {
-          setOverlayVisibility(false, true, false);
+          setOverlayVisibility(false, false, false);
+          setMinePopupsVisible(false);
           setCopyVisible(mapCopyTwo, false);
           map.fitBounds(tenkeCloseBounds, {
             duration: 4200,
@@ -500,12 +560,14 @@
         }
 
         if (nextStage === 3) {
-          setOverlayVisibility(false, true, false);
+          setOverlayVisibility(false, false, false);
+          setMinePopupsVisible(false);
           setCopyVisible(mapCopyTwo, false);
           return;
         }
 
-        setOverlayVisibility(false, false, true);
+        setOverlayVisibility(false, false, false);
+        setMinePopupsVisible(false);
         setCopyVisible(mapCopyTwo, false);
         map.fitBounds(riskBounds, {
           duration: 3600,
@@ -551,7 +613,6 @@
           mapCopyOne.style.left = desiredX + "px";
         }
 
-        setCopyVisible(mapCopyTwo, activeStage === 1);
         updateMineOverviewRevealByZoom();
         setCopyVisible(mapCopyThree, activeStage === 2 || activeStage === 3);
         setCopyVisible(mapCopyFive, activeStage === 4);
