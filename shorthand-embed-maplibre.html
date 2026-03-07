@@ -509,7 +509,7 @@
         }
         var z = map.getZoom();
         var reveal = clamp((z - basinView.zoom) / (stageOneTargetZoom - basinView.zoom), 0, 1);
-        var revealReady = reveal >= 0.8;
+        var revealReady = reveal >= 0.05;
         setCopyVisible(mapCopyTwo, revealReady);
         setOverlayVisibility(revealReady, false, false);
         setMinePopupsVisible(revealReady);
