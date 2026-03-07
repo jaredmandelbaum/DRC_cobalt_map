@@ -33,7 +33,7 @@
 
   #drc-cobalt-maplibre-root .map-scroll {
     position: relative;
-    height: 645vh;
+    height: 1290vh;
     background: #060606;
   }
 
@@ -294,6 +294,11 @@
       mapCanvas.dataset.initialized = "1";
 
       var basinView = { lat: -2.88, lng: 23.66, zoom: 4.6 };
+      var drcBounds = [
+        [12.2, -13.5],
+        [31.3, 5.4]
+      ];
+      var stageOneStartZoom = basinView.zoom;
       var stageOneTargetZoom = 12.6;
       var westCoastRef = { lat: 0.0, lng: 9.0 };
       var kisanfu = { lat: -10.7870667, lng: 25.9300361 };
@@ -508,7 +513,11 @@
           return;
         }
         var z = map.getZoom();
-        var reveal = clamp((z - basinView.zoom) / (stageOneTargetZoom - basinView.zoom), 0, 1);
+        var reveal = clamp(
+          (z - stageOneStartZoom) / (stageOneTargetZoom - stageOneStartZoom),
+          0,
+          1
+        );
         var revealReady = reveal >= 0.05;
         setCopyVisible(mapCopyTwo, revealReady);
         setOverlayVisibility(revealReady, false, false);
@@ -525,12 +534,14 @@
         if (nextStage === 0) {
           setOverlayVisibility(false, false, false);
           setCopyVisible(mapCopyTwo, false);
-          map.easeTo({
-            center: [basinView.lng, basinView.lat],
-            zoom: basinView.zoom,
+          map.fitBounds(drcBounds, {
             duration: 3600,
-            easing: function (t) {
-              return t * (2 - t);
+            maxZoom: basinView.zoom,
+            padding: {
+              top: Math.round(window.innerHeight * 0.05),
+              bottom: Math.round(window.innerHeight * 0.05),
+              left: Math.round(window.innerWidth * 0.06),
+              right: Math.round(window.innerWidth * 0.06)
             }
           });
           return;
@@ -539,6 +550,7 @@
         if (nextStage === 1) {
           setOverlayVisibility(true, false, false);
           setCopyVisible(mapCopyTwo, false);
+          stageOneStartZoom = map.getZoom();
           map.fitBounds(mineBounds, {
             duration: 6200,
             maxZoom: stageOneTargetZoom,
@@ -620,7 +632,31 @@
 
       map.on("load", function () {
         setOverlayVisibility(false, false, false);
-        updateMapProgress();
+        map.fitBounds(drcBounds, {
+          duration: 0,
+          maxZoom: basinView.zoom,
+          padding: {
+            top: Math.round(window.innerHeight * 0.05),
+            bottom: Math.round(window.innerHeight * 0.05),
+            left: Math.round(window.innerWidth * 0.06),
+            right: Math.round(window.innerWidth * 0.06)
+          }
+        });
+        setTimeout(function () {
+          if (mapStage <= 0) {
+            map.fitBounds(drcBounds, {
+              duration: 0,
+              maxZoom: basinView.zoom,
+              padding: {
+                top: Math.round(window.innerHeight * 0.05),
+                bottom: Math.round(window.innerHeight * 0.05),
+                left: Math.round(window.innerWidth * 0.06),
+                right: Math.round(window.innerWidth * 0.06)
+              }
+            });
+          }
+          updateMapProgress();
+        }, 120);
       });
 
       map.on("zoom", updateMineOverviewRevealByZoom);
