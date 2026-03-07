@@ -496,6 +496,33 @@
         tenkePopup.remove();
       }
 
+      function recenterToViewport() {
+        var rect = mapCanvas.getBoundingClientRect();
+        var viewportCenterX = window.innerWidth / 2;
+        var mapCenterX = rect.left + rect.width / 2;
+        var pixelOffset = mapCenterX - viewportCenterX;
+        if (Math.abs(pixelOffset) < 1) {
+          return;
+        }
+        var centerPoint = map.project(map.getCenter());
+        centerPoint.x += pixelOffset;
+        map.setCenter(map.unproject(centerPoint));
+      }
+
+      function fitDrcStageZero(durationMs) {
+        map.fitBounds(drcBounds, {
+          duration: durationMs,
+          maxZoom: basinView.zoom,
+          padding: {
+            top: Math.round(window.innerHeight * 0.05),
+            bottom: Math.round(window.innerHeight * 0.05),
+            left: Math.round(window.innerWidth * 0.06),
+            right: Math.round(window.innerWidth * 0.06)
+          }
+        });
+        requestAnimationFrame(recenterToViewport);
+      }
+
       function setOverlayVisibility(showPoints, showFocus, showRisk) {
         map.setLayoutProperty("mine-points", "visibility", showPoints ? "visible" : "none");
         map.setLayoutProperty("mine-labels", "visibility", "none");
@@ -534,16 +561,7 @@
         if (nextStage === 0) {
           setOverlayVisibility(false, false, false);
           setCopyVisible(mapCopyTwo, false);
-          map.fitBounds(drcBounds, {
-            duration: 3600,
-            maxZoom: basinView.zoom,
-            padding: {
-              top: Math.round(window.innerHeight * 0.05),
-              bottom: Math.round(window.innerHeight * 0.05),
-              left: Math.round(window.innerWidth * 0.06),
-              right: Math.round(window.innerWidth * 0.06)
-            }
-          });
+          fitDrcStageZero(3600);
           return;
         }
 
@@ -632,28 +650,10 @@
 
       map.on("load", function () {
         setOverlayVisibility(false, false, false);
-        map.fitBounds(drcBounds, {
-          duration: 0,
-          maxZoom: basinView.zoom,
-          padding: {
-            top: Math.round(window.innerHeight * 0.05),
-            bottom: Math.round(window.innerHeight * 0.05),
-            left: Math.round(window.innerWidth * 0.06),
-            right: Math.round(window.innerWidth * 0.06)
-          }
-        });
+        fitDrcStageZero(0);
         setTimeout(function () {
           if (mapStage <= 0) {
-            map.fitBounds(drcBounds, {
-              duration: 0,
-              maxZoom: basinView.zoom,
-              padding: {
-                top: Math.round(window.innerHeight * 0.05),
-                bottom: Math.round(window.innerHeight * 0.05),
-                left: Math.round(window.innerWidth * 0.06),
-                right: Math.round(window.innerWidth * 0.06)
-              }
-            });
+            fitDrcStageZero(0);
           }
           updateMapProgress();
         }, 120);
@@ -672,6 +672,11 @@
 
       window.addEventListener("resize", function () {
         map.resize();
+        if (mapStage <= 0) {
+          fitDrcStageZero(0);
+        } else {
+          requestAnimationFrame(recenterToViewport);
+        }
         scheduleUpdate(updateMapProgress);
       });
     }
