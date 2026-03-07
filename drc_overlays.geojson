@@ -1,0 +1,66 @@
+{
+  "type": "FeatureCollection",
+  "name": "drc_cobalt_overlays",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "feature_type": "mine_point",
+        "name": "Kisanfu Mine"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [25.9300361, -10.7870667]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "feature_type": "mine_point",
+        "name": "Tenke Fungurume mine"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [26.2913167, -10.6383278]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "feature_type": "focus_area",
+        "name": "Tenke focus area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [26.263613719015244, -10.651300188663443],
+            [26.30081371901524, -10.651300188663443],
+            [26.30081371901524, -10.628900188663443],
+            [26.263613719015244, -10.628900188663443],
+            [26.263613719015244, -10.651300188663443]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "feature_type": "risk_area",
+        "name": "Nearby communities risk area"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [26.290415449385475, -10.643807818200445],
+            [26.323415449385475, -10.643807818200445],
+            [26.323415449385475, -10.624207818200445],
+            [26.290415449385475, -10.624207818200445],
+            [26.290415449385475, -10.643807818200445]
+          ]
+        ]
+      }
+    }
+  ]
+}

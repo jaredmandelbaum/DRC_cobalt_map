@@ -1,0 +1,584 @@
+<style>
+  @font-face {
+    font-family: "Lato";
+    src: local("Lato"),
+      url("https://jaredmandelbaum.github.io/DRC_cobalt_map/assets/fonts/Lato-Regular.ttf")
+        format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Lato";
+    src: local("Lato Bold"), local("Lato"),
+      url("https://jaredmandelbaum.github.io/DRC_cobalt_map/assets/fonts/Lato-Bold.ttf")
+        format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  #drc-cobalt-maplibre-root,
+  #drc-cobalt-maplibre-root * {
+    box-sizing: border-box;
+  }
+
+  #drc-cobalt-maplibre-root {
+    margin: 0;
+    background: #060606;
+    color: #f6f4ef;
+    font-family: "Lato", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  #drc-cobalt-maplibre-root .map-scroll {
+    position: relative;
+    height: 430vh;
+    background: #060606;
+  }
+
+  #drc-cobalt-maplibre-root .map-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: #050505;
+  }
+
+  #drc-cobalt-maplibre-root .map-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    z-index: 1;
+  }
+
+  #drc-cobalt-maplibre-root .map-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 8vh 7vw;
+    pointer-events: none;
+  }
+
+  #drc-cobalt-maplibre-root .map-copy,
+  #drc-cobalt-maplibre-root .map-attribution {
+    font-family: "Lato", "Helvetica Neue", Arial, sans-serif !important;
+  }
+
+  #drc-cobalt-maplibre-root .map-copy {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: 0 !important;
+    max-width: min(920px, 86vw);
+    font-size: clamp(1.08rem, 2.1vw, 1.92rem) !important;
+    line-height: 1.45 !important;
+    letter-spacing: 0 !important;
+    font-weight: 400 !important;
+    text-align: center;
+    color: rgba(242, 238, 233, 0.94);
+    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--map-copy-offset, 0px)));
+    text-wrap: pretty;
+  }
+
+  #drc-cobalt-maplibre-root .map-copy-panel {
+    background: rgba(10, 10, 10, 0.56);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    padding: clamp(0.9rem, 2vw, 1.6rem) clamp(1rem, 2.2vw, 1.8rem);
+    backdrop-filter: blur(5px);
+  }
+
+  #drc-cobalt-maplibre-root .map-copy-left {
+    left: 18% !important;
+    top: 66% !important;
+    max-width: min(500px, 30vw) !important;
+    text-align: center;
+  }
+
+  #drc-cobalt-maplibre-root .map-copy-left-facility {
+    left: 24% !important;
+    top: 63% !important;
+    max-width: min(600px, 34vw) !important;
+    text-align: left;
+  }
+
+  #drc-cobalt-maplibre-root .map-copy-right-low {
+    left: 64% !important;
+    top: 74% !important;
+    max-width: min(980px, 56vw) !important;
+    text-align: center;
+  }
+
+  #drc-cobalt-maplibre-root .map-copy-strong {
+    font-size: clamp(1.25rem, 2.5vw, 2.18rem) !important;
+    font-weight: 700 !important;
+    line-height: 1.35 !important;
+  }
+
+  #drc-cobalt-maplibre-root .map-attribution {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    z-index: 3;
+    font-size: 12px;
+    color: rgba(245, 242, 236, 0.82);
+    background: rgba(10, 10, 10, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 6px 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  @media (max-width: 900px) {
+    #drc-cobalt-maplibre-root .map-copy-left {
+      left: 50% !important;
+      top: 68% !important;
+      max-width: 88vw !important;
+      text-align: center;
+    }
+
+    #drc-cobalt-maplibre-root .map-copy-left-facility,
+    #drc-cobalt-maplibre-root .map-copy-right-low {
+      left: 50% !important;
+      top: 66% !important;
+      max-width: 90vw !important;
+      text-align: center;
+    }
+  }
+</style>
+
+<div id="drc-cobalt-maplibre-root">
+  <section class="map-scroll" id="mapScroll">
+    <div class="map-sticky">
+      <div id="mapCanvasMapLibre" class="map-canvas" aria-label="Satellite map"></div>
+      <div class="map-overlay">
+        <p class="map-copy map-copy-left map-copy-panel" id="mapCopyOne">
+          Almost half the cobalt in the world is currently produced by a Chinese
+          company called CMOC Group Ltd (CMOC; formerly China Molybdenum Co., Ltd.)
+          through its mining operations in DRC.
+        </p>
+        <p class="map-copy map-copy-panel" id="mapCopyTwo">
+          This is where the group controls two of the world’s largest copper-cobalt
+          mines: the Tenke Fungurume mine and the
+          <span style="white-space: nowrap">Kisanfu mine.</span>
+        </p>
+        <p class="map-copy map-copy-left-facility map-copy-panel" id="mapCopyThree">
+          In order to dominate the world’s cobalt hydroxide production, in 2023 CMOC
+          built one of the largest copper-cobalt processing complexes in Africa -
+          about the size of 500 soccer fields - right next to Fungurume, a mining
+          town in Lualaba province in southeast DRC. This colossal processing
+          facility capable of processing 30,000 tons of copper-cobalt mixed ore
+          every day is known as the “30k plant.”
+        </p>
+        <p class="map-copy map-copy-right-low map-copy-panel map-copy-strong" id="mapCopyFive">
+          The problem is that thousands of people live within a few kilometers of
+          the cobalt mine and its massive processing plant.
+        </p>
+      </div>
+      <div class="map-attribution">
+        Imagery: Esri, Maxar, Earthstar Geographics, and the GIS User Community.
+        Labels: Esri. Data context: OpenStreetMap contributors.
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    var PMTILES_URL =
+      "https://jaredmandelbaum.github.io/DRC_cobalt_map/drc-cobalt-overlays.pmtiles";
+    var PMTILES_LAYER_NAME = "overlays";
+    var mapScroll = document.getElementById("mapScroll");
+    var mapCopyOne = document.getElementById("mapCopyOne");
+    var mapCopyTwo = document.getElementById("mapCopyTwo");
+    var mapCopyThree = document.getElementById("mapCopyThree");
+    var mapCopyFive = document.getElementById("mapCopyFive");
+    var mapCanvas = document.getElementById("mapCanvasMapLibre");
+    var rafPending = false;
+    var mapStage = -1;
+
+    function ensureMapLibreCss() {
+      if (document.querySelector('link[data-drc-cobalt-maplibre-css="1"]')) {
+        return;
+      }
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css";
+      link.setAttribute("data-drc-cobalt-maplibre-css", "1");
+      document.head.appendChild(link);
+    }
+
+    function loadScript(src, attrName, done) {
+      var existing = document.querySelector('script[' + attrName + '="1"]');
+      if (existing) {
+        existing.addEventListener("load", done, { once: true });
+        if (existing.dataset.loaded === "1") {
+          done();
+        }
+        return;
+      }
+      var script = document.createElement("script");
+      script.src = src;
+      script.async = true;
+      script.setAttribute(attrName, "1");
+      script.onload = function () {
+        script.dataset.loaded = "1";
+        done();
+      };
+      document.body.appendChild(script);
+    }
+
+    function loadLibraries(done) {
+      ensureMapLibreCss();
+      loadScript(
+        "https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js",
+        "data-drc-cobalt-maplibre-js",
+        function () {
+          loadScript(
+            "https://unpkg.com/pmtiles@3/dist/pmtiles.js",
+            "data-drc-cobalt-pmtiles-js",
+            done
+          );
+        }
+      );
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function setCopyVisible(el, show) {
+      el.style.opacity = show ? "1" : "0";
+    }
+
+    function scheduleUpdate(updateMapProgress) {
+      if (rafPending) {
+        return;
+      }
+      rafPending = true;
+      requestAnimationFrame(function () {
+        rafPending = false;
+        updateMapProgress();
+      });
+    }
+
+    function initMapBlock() {
+      if (!mapCanvas || mapCanvas.dataset.initialized === "1") {
+        return;
+      }
+      mapCanvas.dataset.initialized = "1";
+
+      var basinView = { lat: -1.5, lng: 21.5, zoom: 5.0 };
+      var westCoastRef = { lat: 0.0, lng: 9.0 };
+      var kisanfu = { lat: -10.7870667, lng: 25.9300361 };
+      var tenkeFungurume = { lat: -10.6383278, lng: 26.2913167 };
+      var tenkeCloseBounds = [
+        [26.263613719015244, -10.651300188663443],
+        [26.30081371901524, -10.628900188663443]
+      ];
+      var riskBounds = [
+        [26.290415449385475, -10.643807818200445],
+        [26.323415449385475, -10.624207818200445]
+      ];
+      var mineBounds = [
+        [kisanfu.lng, kisanfu.lat],
+        [tenkeFungurume.lng, tenkeFungurume.lat]
+      ];
+
+      var protocol = new pmtiles.Protocol();
+      maplibregl.addProtocol("pmtiles", protocol.tile);
+
+      var map = new maplibregl.Map({
+        container: "mapCanvasMapLibre",
+        style: {
+          version: 8,
+          sources: {
+            esri_imagery: {
+              type: "raster",
+              tiles: [
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              ],
+              tileSize: 256,
+              maxzoom: 18,
+              attribution:
+                "Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+            },
+            esri_labels: {
+              type: "raster",
+              tiles: [
+                "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+              ],
+              tileSize: 256,
+              maxzoom: 18,
+              attribution: "Esri, OpenStreetMap contributors"
+            },
+            cobalt_overlays: {
+              type: "vector",
+              url: "pmtiles://" + PMTILES_URL
+            }
+          },
+          layers: [
+            {
+              id: "esri-imagery",
+              type: "raster",
+              source: "esri_imagery",
+              minzoom: 0,
+              maxzoom: 18
+            },
+            {
+              id: "focus-area-fill",
+              type: "fill",
+              source: "cobalt_overlays",
+              "source-layer": PMTILES_LAYER_NAME,
+              filter: ["==", ["get", "feature_type"], "focus_area"],
+              paint: {
+                "fill-color": "#8ad4ff",
+                "fill-opacity": 0.16
+              }
+            },
+            {
+              id: "focus-area-outline",
+              type: "line",
+              source: "cobalt_overlays",
+              "source-layer": PMTILES_LAYER_NAME,
+              filter: ["==", ["get", "feature_type"], "focus_area"],
+              paint: {
+                "line-color": "#9be6ff",
+                "line-width": 2.5
+              }
+            },
+            {
+              id: "risk-area-fill",
+              type: "fill",
+              source: "cobalt_overlays",
+              "source-layer": PMTILES_LAYER_NAME,
+              filter: ["==", ["get", "feature_type"], "risk_area"],
+              paint: {
+                "fill-color": "#ff7660",
+                "fill-opacity": 0.18
+              }
+            },
+            {
+              id: "risk-area-outline",
+              type: "line",
+              source: "cobalt_overlays",
+              "source-layer": PMTILES_LAYER_NAME,
+              filter: ["==", ["get", "feature_type"], "risk_area"],
+              paint: {
+                "line-color": "#ff8d79",
+                "line-width": 2.4
+              }
+            },
+            {
+              id: "mine-points",
+              type: "circle",
+              source: "cobalt_overlays",
+              "source-layer": PMTILES_LAYER_NAME,
+              filter: ["==", ["get", "feature_type"], "mine_point"],
+              paint: {
+                "circle-radius": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  5,
+                  3,
+                  11,
+                  6,
+                  14,
+                  8
+                ],
+                "circle-color": "#ffd166",
+                "circle-stroke-color": "#111111",
+                "circle-stroke-width": 1.5
+              }
+            },
+            {
+              id: "mine-labels",
+              type: "symbol",
+              source: "cobalt_overlays",
+              "source-layer": PMTILES_LAYER_NAME,
+              filter: ["==", ["get", "feature_type"], "mine_point"],
+              layout: {
+                "text-field": ["get", "name"],
+                "text-font": ["Open Sans Bold"],
+                "text-offset": [0, 1.1],
+                "text-size": 13
+              },
+              paint: {
+                "text-color": "#f2eee9",
+                "text-halo-color": "#121212",
+                "text-halo-width": 1.2
+              }
+            },
+            {
+              id: "esri-labels",
+              type: "raster",
+              source: "esri_labels",
+              minzoom: 0,
+              maxzoom: 18
+            }
+          ]
+        },
+        center: [basinView.lng, basinView.lat],
+        zoom: basinView.zoom,
+        minZoom: 4,
+        maxZoom: 16,
+        dragRotate: false,
+        touchZoomRotate: false,
+        interactive: false
+      });
+
+      function setOverlayVisibility(showPoints, showFocus, showRisk) {
+        map.setLayoutProperty("mine-points", "visibility", showPoints ? "visible" : "none");
+        map.setLayoutProperty("mine-labels", "visibility", showPoints ? "visible" : "none");
+        map.setLayoutProperty("focus-area-fill", "visibility", showFocus ? "visible" : "none");
+        map.setLayoutProperty("focus-area-outline", "visibility", showFocus ? "visible" : "none");
+        map.setLayoutProperty("risk-area-fill", "visibility", showRisk ? "visible" : "none");
+        map.setLayoutProperty("risk-area-outline", "visibility", showRisk ? "visible" : "none");
+      }
+
+      function updateMineOverviewRevealByZoom() {
+        if (mapStage !== 1) {
+          setCopyVisible(mapCopyTwo, false);
+          setOverlayVisibility(false, false, false);
+          return;
+        }
+        var z = map.getZoom();
+        var reveal = clamp((z - 10.75) / 1.1, 0, 1);
+        var revealReady = reveal > 0.85;
+        setCopyVisible(mapCopyTwo, revealReady);
+        setOverlayVisibility(revealReady, false, false);
+      }
+
+      function goToMapStage(nextStage) {
+        if (mapStage === nextStage) {
+          return;
+        }
+
+        mapStage = nextStage;
+
+        if (nextStage === 0) {
+          setOverlayVisibility(false, false, false);
+          setCopyVisible(mapCopyTwo, false);
+          map.easeTo({
+            center: [basinView.lng, basinView.lat],
+            zoom: basinView.zoom,
+            duration: 2600,
+            easing: function (t) {
+              return t * (2 - t);
+            }
+          });
+          return;
+        }
+
+        if (nextStage === 1) {
+          setOverlayVisibility(false, false, false);
+          setCopyVisible(mapCopyTwo, false);
+          map.fitBounds(mineBounds, {
+            duration: 4000,
+            maxZoom: 12.6,
+            padding: { top: 80, bottom: 80, left: 80, right: 80 }
+          });
+          return;
+        }
+
+        if (nextStage === 2) {
+          setOverlayVisibility(false, true, false);
+          setCopyVisible(mapCopyTwo, false);
+          map.fitBounds(tenkeCloseBounds, {
+            duration: 2600,
+            maxZoom: 15.8,
+            padding: 40
+          });
+          return;
+        }
+
+        if (nextStage === 3) {
+          setOverlayVisibility(false, true, false);
+          setCopyVisible(mapCopyTwo, false);
+          return;
+        }
+
+        setOverlayVisibility(false, false, true);
+        setCopyVisible(mapCopyTwo, false);
+        map.fitBounds(riskBounds, {
+          duration: 2100,
+          maxZoom: 15.8,
+          padding: 40
+        });
+      }
+
+      function updateMapProgress() {
+        var rect = mapScroll.getBoundingClientRect();
+        var total = Math.max(1, rect.height - window.innerHeight);
+        var scrolled = clamp(-rect.top, 0, total);
+        var progress = scrolled / total;
+        var activeStage = 0;
+
+        if (progress < 0.22) {
+          activeStage = 0;
+          goToMapStage(0);
+        } else if (progress < 0.46) {
+          activeStage = 1;
+          goToMapStage(1);
+        } else if (progress < 0.66) {
+          activeStage = 2;
+          goToMapStage(2);
+        } else if (progress < 0.82) {
+          activeStage = 3;
+          goToMapStage(3);
+        } else {
+          activeStage = 4;
+          goToMapStage(4);
+        }
+
+        var copyOneIn = clamp((progress - 0.03) / 0.11, 0, 1);
+        var copyOneOut = clamp((progress - 0.20) / 0.06, 0, 1);
+        var copyOneOpacity = copyOneIn * (1 - copyOneOut);
+        mapCopyOne.style.opacity = String(copyOneOpacity);
+        mapCopyOne.style.transform =
+          "translate(-50%, calc(-50% + " + (1 - copyOneIn) * 16 + "px))";
+
+        if (activeStage === 0) {
+          var coastPoint = map.project([westCoastRef.lng, westCoastRef.lat]);
+          var desiredX = clamp(coastPoint.x * 0.5, 140, window.innerWidth * 0.42);
+          mapCopyOne.style.left = desiredX + "px";
+        }
+
+        updateMineOverviewRevealByZoom();
+        setCopyVisible(mapCopyThree, activeStage === 2 || activeStage === 3);
+        setCopyVisible(mapCopyFive, activeStage === 4);
+      }
+
+      map.on("load", function () {
+        setOverlayVisibility(false, false, false);
+        updateMapProgress();
+      });
+
+      map.on("zoom", updateMineOverviewRevealByZoom);
+      map.on("move", updateMineOverviewRevealByZoom);
+
+      window.addEventListener(
+        "scroll",
+        function () {
+          scheduleUpdate(updateMapProgress);
+        },
+        { passive: true }
+      );
+
+      window.addEventListener("resize", function () {
+        map.resize();
+        scheduleUpdate(updateMapProgress);
+      });
+    }
+
+    loadLibraries(initMapBlock);
+  })();
+</script>
