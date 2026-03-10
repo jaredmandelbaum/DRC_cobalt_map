@@ -2,7 +2,7 @@
   @font-face {
     font-family: "Lato";
     src: local("Lato"),
-      url("https://jaredmandelbaum.github.io/DRC_cobalt_map/assets/fonts/Lato-Regular.ttf")
+      url("./assets/fonts/Lato-Regular.ttf")
         format("truetype");
     font-weight: 400;
     font-style: normal;
@@ -12,7 +12,7 @@
   @font-face {
     font-family: "Lato";
     src: local("Lato Bold"), local("Lato"),
-      url("https://jaredmandelbaum.github.io/DRC_cobalt_map/assets/fonts/Lato-Bold.ttf")
+      url("./assets/fonts/Lato-Bold.ttf")
         format("truetype");
     font-weight: 700;
     font-style: normal;
@@ -209,10 +209,9 @@
 
 <script>
   (function () {
-    var PMTILES_URL =
-      "https://jaredmandelbaum.github.io/DRC_cobalt_map/drc-cobalt-overlays.pmtiles";
+    var PMTILES_URL = "./drc-cobalt-overlays.pmtiles";
     var PMTILES_LAYER_NAME = "overlays";
-    var GLYPHS_URL = "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf";
+    var GLYPHS_URL = "./vendor/map/glyphs/{fontstack}/{range}.pbf";
     var mapScroll = document.getElementById("mapScroll");
     var mapCopyOne = document.getElementById("mapCopyOne");
     var mapCopyTwo = document.getElementById("mapCopyTwo");
@@ -228,7 +227,7 @@
       }
       var link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = "https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.css";
+      link.href = "./vendor/map/maplibre-gl.css";
       link.setAttribute("data-drc-cobalt-maplibre-css", "1");
       document.head.appendChild(link);
     }
@@ -256,11 +255,11 @@
     function loadLibraries(done) {
       ensureMapLibreCss();
       loadScript(
-        "https://unpkg.com/maplibre-gl@5.15.0/dist/maplibre-gl.js",
+        "./vendor/map/maplibre-gl.js",
         "data-drc-cobalt-maplibre-js",
         function () {
           loadScript(
-            "https://unpkg.com/pmtiles@3/dist/pmtiles.js",
+            "./vendor/map/pmtiles.js",
             "data-drc-cobalt-pmtiles-js",
             done
           );
@@ -433,7 +432,7 @@
               layout: {
                 "visibility": "none",
                 "text-field": ["get", "name"],
-                "text-font": ["Noto Sans Bold", "Open Sans Bold"],
+                "text-font": ["Noto Sans Bold"],
                 "text-offset": [0, 1.1],
                 "text-size": 13
               },
